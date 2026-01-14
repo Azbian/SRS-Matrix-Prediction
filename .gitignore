@@ -1,0 +1,6 @@
+.env
+*.pdf
+*.csv
+*.json
+/Dataset
+/Papers
