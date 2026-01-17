@@ -4,3 +4,4 @@
 *.json
 /Preprocessed Dataset
 /Papers
+*.npy
