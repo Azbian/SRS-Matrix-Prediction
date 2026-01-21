@@ -20,10 +20,10 @@ def convert_csv_to_numpy(e2_path, srs_path, output_prefix):
     srs_data = np.stack(parsed_srs, axis=0)
     
     # Save to disk
-    np.save(f"{output_prefix}_e2.npy", e2_data)
-    np.save(f"{output_prefix}_srs.npy", srs_data)
+    np.save(f"{output_prefix}E2_test.npy", e2_data)
+    np.save(f"{output_prefix}SRS_test.npy", srs_data)
     print("Pre-processing complete.")
 
-e2_path = "P:/SP Challenge/DataSet/Preprocessed Dataset/combined_E2.csv"
-srs_path = "P:/SP Challenge/DataSet/Preprocessed Dataset/combined_pp_srs.csv"
-convert_csv_to_numpy(e2_path, srs_path, "P:/SP Challenge/DataSet/Preprocessed Dataset/processed_data")
+e2_path = "P:/SP Challenge/DataSet/Preprocessed Dataset/E2_test.csv"
+srs_path = "P:/SP Challenge/DataSet/Preprocessed Dataset/srs_test.csv"
+convert_csv_to_numpy(e2_path, srs_path, "P:/SP Challenge/Model/")
