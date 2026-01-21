@@ -126,7 +126,7 @@ def delete_unnecessary_columns():
     
     tasks = [
         (SRS_OUTPUT_CSV, ["timestamp"]),
-        (E2_INPUT_CSV, ["_id", "ue_id", "timestamp", "cellid", "rnti", "pmi"])
+        (E2_INPUT_CSV, ["_id", "ue_id", "timestamp", "cellid", "rnti", "pmi", 'dlQm', 'ulQm'])
     ]
 
     for file_path, cols in tasks:
