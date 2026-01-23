@@ -1,4 +1,5 @@
 import csv
+import argparse
 
 def count_timestamps_by_integer(csv_file_path, integer_part):
     timestamp_counts = {}
@@ -24,15 +25,18 @@ def count_timestamps_by_integer(csv_file_path, integer_part):
     return timestamp_counts, total_count, last_total_count
 
 if __name__ == "__main__":
-    csv_file_path = "pp_srs.csv"  # Update with the correct path to your CSV file
-    integer_part = int(input("Enter the integer part of the timestamp to count (e.g., 5): "))
+    parser = argparse.ArgumentParser(description="Count timestamps in a CSV file by integer part.")
+    parser.add_argument("--csv_file_path", type=str, required=True, help="Path to the input CSV file.")
+    parser.add_argument("--integer_part", type=int, required=True, help="The integer part of the timestamp to count.")
+
+    args = parser.parse_args()
 
     try:
-        counts, total_count, last_total_count = count_timestamps_by_integer(csv_file_path, integer_part)
-        print("Timestamp counts for integer part", integer_part, ":")
+        counts, total_count, last_total_count = count_timestamps_by_integer(args.csv_file_path, args.integer_part)
+        print("Timestamp counts for integer part", args.integer_part, ":")
         for timestamp, count in counts.items():
             print(f"Timestamp: {timestamp}, Count: {count}")
-        print(f"Total count of timestamps with integer part {integer_part}: {total_count}")
+        print(f"Total count of timestamps with integer part {args.integer_part}: {total_count}")
         print(f"Total count of all timestamps: {last_total_count}")
     except Exception as e:
         print(f"An error occurred: {e}")

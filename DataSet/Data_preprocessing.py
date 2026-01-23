@@ -8,20 +8,17 @@ import csv
 # =========================
 # CONFIGURATION
 # =========================
-SRS_INPUT_JSON  = "DataSet/SRS.json"
-SRS_OUTPUT_CSV  = "pp_srs.csv"
-E2_INPUT_CSV    = "P:/SP Challenge/DataSet/E2.csv"
-TIME_STEP       = 0.01
+TIME_STEP = 0.01
 
-def srs_preprocessing():
+def srs_preprocessing(srs_input_json, srs_output_csv):
     """Logic from SRS_preprocessing.py"""
     print("--- Step 1: SRS Preprocessing ---")
-    if not os.path.exists(SRS_INPUT_JSON):
-        print(f"Error: {SRS_INPUT_JSON} not found. Skipping Step 1.")
+    if not os.path.exists(srs_input_json):
+        print(f"Error: {srs_input_json} not found. Skipping Step 1.")
         return False
 
     print("Reading JSON...")
-    with open(SRS_INPUT_JSON, 'r') as f:
+    with open(srs_input_json, 'r') as f:
         data = json.load(f)
     
     df = pd.DataFrame(data)
@@ -78,8 +75,8 @@ def srs_preprocessing():
         })
 
     out_df = pd.DataFrame(stacked_rows)
-    out_df.to_csv(SRS_OUTPUT_CSV, index=False)
-    print(f"✅ SRS Preprocessing complete. Saved to: {SRS_OUTPUT_CSV}")
+    out_df.to_csv(srs_output_csv, index=False)
+    print(f"✅ SRS Preprocessing complete. Saved to: {srs_output_csv}")
     return True
 
 def adjust_timeframe(file_paths):
@@ -120,14 +117,9 @@ def adjust_timeframe(file_paths):
         except Exception as e:
             print(f"An error occurred with {file_path}: {e}")
 
-def delete_unnecessary_columns():
+def delete_unnecessary_columns(tasks):
     """Logic from delete_columns.py"""
     print("\n--- Step 3: Delete Columns ---")
-    
-    tasks = [
-        (SRS_OUTPUT_CSV, ["timestamp"]),
-        (E2_INPUT_CSV, ["_id", "ue_id", "timestamp", "cellid", "rnti", "pmi", 'dlQm', 'ulQm'])
-    ]
 
     for file_path, cols in tasks:
         if not os.path.exists(file_path):
@@ -173,23 +165,40 @@ def remove_header_row(file_path):
     except Exception as e:
         print(f"An error occurred while removing header from {file_path}: {e}")
 
-def main():
+def main(srs_input_json, srs_output_csv, e2_input_csv):
     # 1. Preprocess SRS (creates pp_srs.csv)
-    success = srs_preprocessing()
+    success = srs_preprocessing(srs_input_json, srs_output_csv)
     
     # 2. Adjust timeframe for both files
     # We only proceed if files exist
-    adjust_timeframe([SRS_OUTPUT_CSV, E2_INPUT_CSV])
+    adjust_timeframe([srs_output_csv, e2_input_csv])
     
     # 3. Clean up columns
-    delete_unnecessary_columns()
+    delete_unnecessary_columns([
+        (srs_output_csv, ["timestamp"]),
+        (e2_input_csv, ["_id", "timestamp", "ue_id", "cellid", "rnti", "dlMcs", "dlBler", "ri", "pmi", "dlQm", "ulQm"])
+    ])
 
     # 4. Remove header row from pp_srs.csv as the final step
-    remove_header_row(SRS_OUTPUT_CSV)
+    remove_header_row(srs_output_csv)
     
     print("\n" + "="*30)
     print("✅ Full Pipeline Completed Successfully!")
     print("="*30)
 
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Data Preprocessing Pipeline")
+    parser.add_argument("--srs_input_json", type=str, required=True, help="Path to the input SRS JSON file")
+    parser.add_argument("--srs_output_csv", type=str, required=True, help="Path to the output SRS CSV file")
+    parser.add_argument("--e2_input_csv", type=str, required=True, help="Path to the input E2 CSV file")
+
+    try:
+        args = parser.parse_args()
+        main(args.srs_input_json, args.srs_output_csv, args.e2_input_csv)
+    except SystemExit as e:
+        if e.code != 0:  # Non-zero exit code indicates an error
+            print("\nError: Invalid command. Please use the following format:")
+            print("python Data_preprocessing.py --srs_input_json <path_to_srs_input_json> --srs_output_csv <path_to_srs_output_csv> --e2_input_csv <path_to_e2_input_csv>")
+        raise

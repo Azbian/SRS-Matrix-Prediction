@@ -18,6 +18,10 @@ def normalize_csv(input_file, output_file):
     normalized_df.to_csv(output_file, index=False)
 
 if __name__ == "__main__":
-    input_file = "DataSet/Preprocessed Dataset/E2_train_raw.csv"
-    output_file = "DataSet/Preprocessed Dataset/E2_train.csv"
-    normalize_csv(input_file, output_file)
+    parser = argparse.ArgumentParser(description="Normalize a CSV file by columns.")
+    parser.add_argument("--input_file", type=str, required=True, help="Path to the input CSV file.")
+    parser.add_argument("--output_file", type=str, required=True, help="Path to the output normalized CSV file.")
+
+    args = parser.parse_args()
+
+    normalize_csv(args.input_file, args.output_file)
