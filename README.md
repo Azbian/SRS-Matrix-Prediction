@@ -1,7 +1,7 @@
 # SRS Matrix Prediction project
 
 ## Project Overview
-The SRS Matrix Prediction project aims to process and analyze datasets for channel prediction through the use of deep learning models. It takes the SRS matrix and radio states as inputs and forecasts the future SRS matrix 50 milliseconds into the future.
+The SRS Matrix Prediction project aims to process and analyze datasets for channel prediction through the use of deep learning models. It takes the SRS matrix and radio states of 1 second as inputs and forecasts the future SRS matrix 50 milliseconds into the future.
 
 ## Project Structure
 
@@ -64,6 +64,14 @@ numpy
 pandas
 matplotlib
 scikit-learn
+glob
+os
+csv
+argparse
+tensorflow-addons
+json
+datetime
+io
 ```
 
 Install the dependencies using the following command:
@@ -134,7 +142,56 @@ The outputs of both branches are concatenated and passed through LSTM and dense 
 
 ## Results
 
+The output shape is (4, 1536), indicating that two SRS matrices for antennas 0 and 1 are predicted, each with a shape of (2, 1536).
+
 The model is trained for 100 epochs, and the training loss is visualized using Matplotlib. The evaluation is performed using the test dataset, and metrics such as Mean Squared Error (MSE) are reported.
+
+## Methodology
+
+### Data Processing
+
+The data processing pipeline consists of the following steps:
+
+1. **SRS Preprocessing**:
+   - The raw SRS data in JSON format is parsed and converted into a structured CSV format.
+   - The data is cleaned by removing unnecessary columns such as `_id`, `frame`, `slot`, `tx_port`, and `rnti`.
+   - Missing timestamps are filled with zero arrays to ensure a consistent time series.
+   - Each timestamp contained two SRS matrices with a shape of (2, 1536) each, which were stacked to create a new matrix shaped (4, 1536), which represents a single timestamp.
+
+2. **Adjusting Timeframes**:
+   - The timeframes of the SRS and E2 datasets are aligned to ensure synchronization and ensure a complete frame of data for one second.
+   - The time frames are stated in the Timeframes.txt file.
+
+3. **Column Deletion**:
+   - Unnecessary columns are removed from the datasets to retain only the relevant features for model training.
+
+4. **Normalization**:
+   - The E2 dataset is normalized to scale the data values between 0 and 1, ensuring compatibility with the model.
+
+5. **Conversion to NPY Format**:
+   - The preprocessed and normalized CSV files are converted into NPY format for efficient loading and processing during model training.
+
+### Feature Engineering
+
+- **E2 Data**:
+  - The E2 data represents radio state information and is processed into a 3D tensor with a shape of `(5, 4, 14)`.
+  - This tensor is derived from a sequence of 20 time steps, with each step containing 14 features.
+
+- **SRS Data**:
+  - The SRS data represents channel state information and is processed into a 3D tensor with a shape of `(20, 20, 1536)`.
+  - This tensor is derived from a sequence of 100 rows of SRS data, each containing 1536 features for 20 time steps.
+  - The SRS data undergoes normalization during training to prevent issues related to gradient explosion or vanishing. It is then denormalized at the output to accurately predict the actual SRS matrix.
+
+### Model Input and Output
+
+- **Input**:
+  - The model takes two inputs:
+    1. **Radio Input (E2)**: A tensor of shape `(5, 4, 14)` representing the radio state information.
+    2. **SRS Input**: A tensor of shape `(20, 20, 1536)` representing the channel state information.
+
+- **Output**:
+  - The model outputs a tensor of shape `(4, 1536)`.
+  - This represents the predicted SRS matrices for two antennas (0 and 1), each with a shape of `(2, 1536)`.
 
 ## Contact
 
