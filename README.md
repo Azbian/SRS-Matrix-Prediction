@@ -150,6 +150,8 @@ The model is trained for 100 epochs, and the training loss is visualized using M
 
 ### Data Processing
 
+The model is trained with the data from experiment 1 to 7.
+The data from experiment 8 was used to test the predictions.
 The data processing pipeline consists of the following steps:
 
 1. **SRS Preprocessing**:
