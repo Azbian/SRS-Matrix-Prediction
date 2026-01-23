@@ -1,7 +1,7 @@
-# SP Challenge
+# SRS Matrix Prediction project
 
 ## Project Overview
-The SP Challenge project is designed to process and analyze datasets for channel prediction using deep learning models. The project includes data preprocessing, model training, and evaluation.
+The SRS Matrix Prediction project aims to process and analyze datasets for channel prediction through the use of deep learning models. It takes the SRS matrix and radio states as inputs and forecasts the future SRS matrix 50 milliseconds into the future.
 
 ## Project Structure
 
