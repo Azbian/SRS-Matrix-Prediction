@@ -1,26 +1,28 @@
-# SRS Matrix Prediction project
+
+# SRS Matrix Prediction Project
 
 ## Project Overview
-The SRS Matrix Prediction project aims to process and analyze datasets for channel prediction through the use of deep learning models. It takes the SRS matrix and radio states of 1 second as inputs and forecasts the future SRS matrix 50 milliseconds into the future.
+This project processes and analyzes wireless channel datasets for channel prediction using deep learning. It takes SRS matrices and radio state (E2) data as input and forecasts the future SRS matrix 50 ms ahead.
 
 ## Project Structure
 
 ```
 DataSet/
-    add_csv_files.py
-    count_csv_timestamps.py
-    csv_normalization.py
-    csv_to_npy.py
     Data_preprocessing.py
-    delete_columns.py
+    E2_1.csv
+    E2_2.csv
+    ...
+    E2_8.csv
+    SRS_1.json
+    SRS_2.json
+    ...
+    SRS_8.json
     Timeframes.txt
-    Preprocessed Dataset/
-        E2_test_raw.csv
-        E2_train_raw.csv
+    preprocessed_datasets/
         E2_test.csv
         E2_train.csv
-        srs_test.csv
-        srs_train.csv
+        SRS_test.csv
+        SRS_train.csv
 Model/
     Channel_prediction_model.ipynb
     E2_test.npy
@@ -29,172 +31,129 @@ Model/
     SRS_train.npy
     logs/
         performance_log.txt
+    Saved/
+        model_weights.h5
 README.md
 requirements.txt
 ```
 
 ### Key Directories and Files
 
-- **DataSet/**: Contains scripts for data preprocessing and the preprocessed datasets.
-  - `Data_preprocessing.py`: Main script for data preprocessing.
-  - `add_csv_files.py`: Script to combine multiple CSV files row-wise.
-  - `csv_to_npy.py`: Converts CSV files to NPY format.
-  - `count_csv_timestamps.py`: Script to count timestamps in CSV files.
-  - `csv_normalization.py`: Script for normalizing CSV data.
-  - `delete_columns.py`: Script to delete specific columns manually from datasets.
-  - `Timeframes.txt`: Contains information about timeframes for data processing.
-  - **Preprocessed Dataset/**: Contains preprocessed datasets such as `E2_test.csv`, `E2_train.csv`, etc.
+- **DataSet/**: Raw and preprocessed data, and preprocessing scripts.
+  - `Data_preprocessing.py`: Main script for preprocessing raw E2 and SRS data.
+  - `E2_1.csv` ... `E2_8.csv`: Raw E2 data for each experiment.
+  - `SRS_1.json` ... `SRS_8.json`: Raw SRS data for each experiment.
+  - `Timeframes.txt`: Timeframe information for data processing.
+  - **preprocessed_datasets/**: Contains processed CSVs for training/testing.
+    - `E2_train.csv`, `E2_test.csv`, `SRS_train.csv`, `SRS_test.csv`: Preprocessed datasets.
 
-- **Model/**: Contains the deep learning model and related files.
-  - `Channel_prediction_model.ipynb`: Jupyter notebook for model training and evaluation.
-  - `E2_test.npy`, `E2_train.npy`, `SRS_test.npy`, `SRS_train.npy`: Preprocessed NPY files for training and testing.
-  - **logs/**: Contains performance for different model parameters.
+- **Model/**: Model code, training notebooks, and results.
+  - `Channel_prediction_model.ipynb`: Jupyter notebook for model training/evaluation.
+  - `E2_train.npy`, `E2_test.npy`, `SRS_train.npy`, `SRS_test.npy`: Numpy arrays for model input.
+  - **logs/**: Model training logs (e.g., `performance_log.txt`).
+  - **Saved/**: Saved model weights (e.g., `model_weights.h5`).
 
-- **README.md**: Project documentation.
+- **Papers/**: Research papers and references.
 
-- **requirements.txt**: List of required Python libraries for the project.
+- **README.md**: Project documentation (this file).
+
+- **requirements.txt**: Python dependencies for the project.
 
 ## Requirements
 
-The project requires the following Python libraries:
-
-```
-tensorflow
-numpy
-pandas
-matplotlib
-scikit-learn
-glob
-os
-csv
-argparse
-tensorflow-addons
-json
-datetime
-io
-```
-
-Install the dependencies using the following command:
+Install dependencies with:
 
 ```
 pip install -r requirements.txt
 ```
 
+Main libraries used:
+
+- tensorflow
+- numpy
+- pandas
+- matplotlib
+- scikit-learn
+- glob
+- os
+- csv
+- argparse
+- tensorflow-addons
+- json
+- datetime
+- io
+
+Other standard libraries: glob, os, csv, argparse, json, datetime, io
+
 ## How to Run
 
-### Preprocessing the Data
+### Data Preprocessing Script
 
-1. **Run the main preprocessing script**:
-   ```
-   python DataSet/Data_preprocessing.py --srs_input_json <path_to_srs_input_json> --srs_output_csv <path_to_srs_output_csv> --e2_input_csv <path_to_e2_input_csv>
-   ```
-   - Replace `<path_to_srs_input_json>` with the path to the input SRS JSON file.
-   - Replace `<path_to_srs_output_csv>` with the path to save the preprocessed SRS CSV file.
-   - Replace `<path_to_e2_input_csv>` with the path to the input E2 CSV file.
+All data preprocessing is handled by a single script: `Data_preprocessing.py`.
 
-2. **Combine multiple CSV files**:
-   ```
-   python DataSet/add_csv_files.py --base_dir <path_to_base_directory>
-   ```
-   - Replace `<path_to_base_directory>` with the directory containing the CSV files to combine.
+1. **Preprocess all raw data:**
+  ```
+  python DataSet/Data_preprocessing.py --base_folder <path_to_data_folder> --output_folder <path_to_output_folder>
+  ```
+  - `<path_to_data_folder>`: Path to the folder containing raw E2 CSVs, SRS JSONs, and `Timeframes.txt` (e.g., `DataSet/`)
+  - `<path_to_output_folder>`: Path to save the preprocessed CSV and NPY files (e.g., `DataSet/preprocessed_datasets/`)
 
-3. **Normalize the E2 CSV data**:
-   ```
-   python DataSet/csv_normalization.py --input_file <path_to_input_csv> --output_file <path_to_output_csv>
-   ```
-   - Replace `<path_to_input_csv>` with the path to the combined E2 CSV file.
-   - Replace `<path_to_output_csv>` with the path to save the normalized E2 CSV file.
+2. **Preprocessed output:**
+  - Preprocessed CSVs (`E2_train.csv`, `E2_test.csv`, `SRS_train.csv`, `SRS_test.csv`) and NPY files are saved in the specified output folder.
+  - These files are used directly for model training and evaluation.
 
-4. **Convert CSV files to NPY format**:
-   ```
-   python DataSet/csv_to_npy.py --e2_path <path_to_e2_csv> --srs_path <path_to_srs_csv> --output_prefix <path_to_output_directory> --convert <e2|srs|both>
-   ```
-   - Replace `<path_to_e2_csv>` with the path to the normalized E2 CSV file.
-   - Replace `<path_to_srs_csv>` with the path to the combined SRS CSV file.
-   - Replace `<path_to_output_directory>` with the directory to save the NPY files.
-   - Use `--convert` to specify whether to convert `e2`, `srs`, or `both`.
+### Model Training
 
-
-### Full Preprocessing Workflow
-
-1. Use the `Data_preprocessing.py` script to preprocess the raw data:
-   - Convert `E2` and `SRS.json` raw data into preprocessed CSV files (`E2_train.csv`, `pp_srs.csv`).
-
-2. Use the `add_csv_files.py` script to combine the preprocessed E2 and SRS CSV files into single combined files (`combined_E2.csv` and `combined_pp_srs.csv`).
-
-3. Use the `csv_normalization.py` script to normalize the combined E2 CSV file only. This step ensures that the E2 data is scaled appropriately for model training.
-
-4. Use the `csv_to_npy.py` script to convert the normalized E2 CSV file and the combined SRS CSV file into NPY format. These NPY files will be used as input for the deep learning model.
-
-### Train the Model
-
-1. Open the `Channel_prediction_model.ipynb` notebook in the `Model/` directory.
-2. Follow the steps in the notebook to train and evaluate the model.
+1. Open `Model/Channel_prediction_model.ipynb` in Jupyter or VS Code.
+2. Follow the notebook steps to train and evaluate the model using the NPY files.
+3. Model weights and logs are saved in `Model/Saved/` and `Model/logs/`.
 
 ## Model Overview
 
-The model is a deep learning architecture that combines convolutional layers and LSTM layers to predict channel data. It uses two input branches:
+The model is a deep learning architecture combining convolutional and LSTM layers for channel prediction. It uses two input branches:
 
-1. **Radio Input Branch**: Processes E2 data using convolutional layers.
-2. **SRS Input Branch**: Processes SRS data using convolutional layers and residual connections.
+- **Radio Input Branch:** Processes E2 data (radio state) with convolutional layers.
+- **SRS Input Branch:** Processes SRS data (channel state) with convolutional and residual layers.
 
-The outputs of both branches are concatenated and passed through LSTM and dense layers to produce the final predictions.
+The outputs are concatenated and passed through LSTM and dense layers to predict the future SRS matrix.
 
-## Results
+### Input/Output
 
-The output shape is (4, 1536), indicating that two SRS matrices for antennas 0 and 1 are predicted, each with a shape of (2, 1536).
-
-The model is trained for 100 epochs, and the training loss is visualized using Matplotlib. The evaluation is performed using the test dataset, and metrics such as Mean Squared Error (MSE) are reported.
+- **Input:**
+  - E2: Tensor of shape `(5, 4, 14)`
+  - SRS: Tensor of shape `(20, 20, 1536)`
+- **Output:**
+  - Tensor of shape `(4, 1536)` (predicted SRS matrices for two antennas)
 
 ## Methodology
 
 ### Data Processing
 
-The model is trained with the data from experiment 1 to 7.
-The data from experiment 8 was used to test the predictions.
-The data processing pipeline consists of the following steps:
-
-1. **SRS Preprocessing**:
-   - The raw SRS data in JSON format is parsed and converted into a structured CSV format.
-   - The data is cleaned by removing unnecessary columns such as `_id`, `frame`, `slot`, `tx_port`, and `rnti`.
-   - Missing timestamps are filled with zero arrays to ensure a consistent time series.
-   - Each timestamp contained two SRS matrices with a shape of (2, 1536) each, which were stacked to create a new matrix shaped (4, 1536), which represents a single timestamp.
-
-2. **Adjusting Timeframes**:
-   - The timeframes of the SRS and E2 datasets are aligned to ensure synchronization and ensure a complete frame of data for one second.
-   - The time frames are stated in the Timeframes.txt file.
-
-3. **Column Deletion**:
-   - Unnecessary columns are removed from the datasets to retain only the relevant features for model training.
-
-4. **Normalization**:
-   - The E2 dataset is normalized to scale the data values between 0 and 1, ensuring compatibility with the model.
-
-5. **Conversion to NPY Format**:
-   - The preprocessed and normalized CSV files are converted into NPY format for efficient loading and processing during model training.
+- Experiments 1-7: Used for training
+- Experiment 8: Used for testing
+- Steps:
+  1. Extract raw files (`E2_*.csv`, `SRS_*.json`) into `DataSet/`
+  2. Place the Timeframes.txt into the same folder
+  3. Run `Data_preprocessing.py` to generate preprocessed CSVs
+  4. Move/train/test NPY files to `Model/` as needed
+  5. Train the model in the notebook
 
 ### Feature Engineering
 
-- **E2 Data**:
-  - The E2 data represents radio state information and is processed into a 3D tensor with a shape of `(5, 4, 14)`.
-  - This tensor is derived from a sequence of 20 time steps, with each step containing 14 features.
+- **E2 Data:**
+  - 3D tensor `(5, 4, 14)` from 20 time steps, 14 features each
+  - Normalized the data during preprocessing
+- **SRS Data:**
+  - 3D tensor `(20, 20, 1536)` from 100 rows, 1536 features each
+  - Normalized during training, denormalized at output
 
-- **SRS Data**:
-  - The SRS data represents channel state information and is processed into a 3D tensor with a shape of `(20, 20, 1536)`.
-  - This tensor is derived from a sequence of 100 rows of SRS data, each containing 1536 features for 20 time steps.
-  - The SRS data undergoes normalization during training to prevent issues related to gradient explosion or vanishing. It is then denormalized at the output to accurately predict the actual SRS matrix.
+## Results
 
-### Model Input and Output
-
-- **Input**:
-  - The model takes two inputs:
-    1. **Radio Input (E2)**: A tensor of shape `(5, 4, 14)` representing the radio state information.
-    2. **SRS Input**: A tensor of shape `(20, 20, 1536)` representing the channel state information.
-
-- **Output**:
-  - The model outputs a tensor of shape `(4, 1536)`.
-  - This represents the predicted SRS matrices for two antennas (0 and 1), each with a shape of `(2, 1536)`.
+- Output shape: `(4, 1536)` (two SRS matrices for antennas 0 and 1)
+- Trained for 100 epochs
+- Training loss visualized with Matplotlib
+- Evaluation: Mean Squared Error (MSE) on test set
 
 ## Contact
 
-For any questions or feedback, please contact the project maintainer.
+For questions or feedback, please contact the project maintainer.
