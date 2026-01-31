@@ -4,3 +4,5 @@
 *.json
 /Papers
 *.npy
+/model/__pycache__/
+/model/media
